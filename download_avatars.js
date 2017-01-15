@@ -1,6 +1,6 @@
 //add process argv
 var https = require('https');
-var resp = "";
+var userInfo = [];
 
 var options = {
   host: 'api.github.com',
@@ -10,20 +10,29 @@ var options = {
   }
 };
 
-function rateLimitCheck(response){
-  if (response.headers.status === '403 Forbidden' && response.headers['x-ratelimit-remaining'] == 0)
-  {
+const rateLimitCheck = function(response) {
+  if (response.headers.status === '403 Forbidden' && response.headers['x-ratelimit-remaining'] == 0) {
     var timeDiff = new Date(response.headers['x-ratelimit-reset'] * 1000).getTime() - new Date().getTime();
-    console.log("API Rate limit met, please try again in" , Math.round(timeDiff / 1000 / 60), "minutes.");
+    console.log("API Rate limit met, please try again in", Math.round(timeDiff / 1000 / 60), "minutes.");
     return false;
   }
 }
 
+const pushUserInfo = function(resp){
+  JSON.parse(resp).forEach((user) => {
+    userInfo.push({
+      user : user.login,
+      avatarUrl : user.avatar_url
+    });
+  });
+}
+
 
 var callback = function(response) {
+  var resp = '';
   //add a check for status 200
   if (rateLimitCheck(response) === false) return;
-  console.log(response.headers);
+  //console.log(response.headers);
   var i = 0;
   var newLink = response.headers.link;
 
@@ -34,9 +43,11 @@ var callback = function(response) {
   response.on('end', function() {
     if (response.headers.link && newLink.indexOf("next") !== -1) {
       options.path = newLink.match(/\/repositories.*?>/)[0].slice(0, -1);;
+      resp = '';
       https.request(options, callback).end();
     } else {
-      console.log(JSON.parse(resp));
+      pushUserInfo(resp);
+      console.log(userInfo);
     }
   });
 }
