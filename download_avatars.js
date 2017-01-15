@@ -1,5 +1,5 @@
 // REQUIRED
-//create url spliter of getWrite image
+// Fix File Type
 // OPTIONAL
 //make it async
 //need to make sure the extension is correct
@@ -13,8 +13,7 @@ var userInfo = [];
 
 var options = {
   host: 'api.github.com',
-  //path: `/repos/${process.argv[2]}/${process.argv[3]}/contributors`,
-  path: '/repos/drakaven/ejs/contributors',
+  path: `/repos/${process.argv[2]}/${process.argv[3]}/contributors`,
   headers: {
     'User-Agent': 'drakaven'
   }
@@ -25,23 +24,27 @@ const getWriteImage = function() {
   //closure variable
   var fileCounter = 0;
   return function(user, url) {
-    console.log(url);
+
     var options = {
-      host: 'www.google.com',
-      path: '/images/logos/ps_logo2.png'
+      //host: url
+      host: url.match(/\/\/.*?.com/)[0].substring(2),
+      path: url.match(/com.*/)[0].substring(3)
     }
     var callback = function(response) {
       var imagedata = ''
+      //get file type from headers
+      console.log(response.headers);
       response.setEncoding('binary');
       response.on('data', function(chunk) {
         imagedata += chunk
       });
 
       response.on('end', function() {
-        fs.writeFile('./avatars/' + user + '.png', imagedata, 'binary', function(err) {
+        //console.log(fs.stat(imagedata));
+        fs.writeFile('./avatars/' + user, imagedata, 'binary', function(err) {
           if (err) throw err
           fileCounter++;
-          console.log('File saved:', user + '.png', fileCounter);
+          console.log('File saved:', user, fileCounter);
         });
       });
     }
@@ -89,7 +92,7 @@ const callback = function(response) {
     } else {
       pushUserInfo(resp);
       if (!fs.existsSync("./avatars")) {
-        fs.mkdirSync(dir);
+        fs.mkdirSync("./avatars");
       }
       userInfo.forEach((item) => {
         getWriteImage(item.user, item.avatarUrl);
