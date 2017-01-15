@@ -1,12 +1,4 @@
-// REQUIRED
-// Fix File Type
-// OPTIONAL
-//make it async
-//can this / should this be piped into the writer?
-//need to make sure the extension is correct
-//try to set request size to 100
-//add 200 status check
-//return when repo not found
+
 
 var https = require('https');
 var request = require('request');
