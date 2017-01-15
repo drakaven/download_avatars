@@ -4,7 +4,7 @@ var userInfo = [];
 
 var options = {
   host: 'api.github.com',
-  path: '/repos/drakaven/ejs/contributors',
+  path: '/repos/jquery/jquery/contributors',
   headers: {
     'User-Agent': 'drakaven'
   }
@@ -18,15 +18,14 @@ const rateLimitCheck = function(response) {
   }
 }
 
-const pushUserInfo = function(resp){
+const pushUserInfo = function(resp) {
   JSON.parse(resp).forEach((user) => {
     userInfo.push({
-      user : user.login,
-      avatarUrl : user.avatar_url
+      user: user.login,
+      avatarUrl: user.avatar_url
     });
   });
 }
-
 
 var callback = function(response) {
   var resp = '';
@@ -43,6 +42,7 @@ var callback = function(response) {
   response.on('end', function() {
     if (response.headers.link && newLink.indexOf("next") !== -1) {
       options.path = newLink.match(/\/repositories.*?>/)[0].slice(0, -1);;
+      pushUserInfo(resp);
       resp = '';
       https.request(options, callback).end();
     } else {
