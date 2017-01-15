@@ -1,6 +1,7 @@
 //REQUIRED
 //process.argv
 //files extension
+//git branch merge test
 
 //OPTIONS
 //fix options declarations
