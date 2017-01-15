@@ -1,15 +1,52 @@
 //add process argv
+//needs to make the avatars directory
+//need to make sure the extension is correct
+//try to set request size to 100;
+//add 200 status check
+
 var https = require('https');
-var getImage = require('./temp_images');
+var fs = require('fs');
 var userInfo = [];
 
 var options = {
   host: 'api.github.com',
   path: '/repos/drakaven/ejs/contributors',
   headers: {
-    'User-Agent': 'drakven'
+    'User-Agent': 'drakaven'
   }
 };
+
+const getWriteImage = function (){
+  //self executes to pass the returned function
+  //closure variable
+  var fileCounter =  0;
+  return function(user, url) {
+    var options = {
+      host: 'www.google.com',
+      path: '/images/logos/ps_logo2.png'
+    }
+    var callback = function(response) {
+      var imagedata = ''
+      response.setEncoding('binary')
+
+      response.on('data', function(chunk) {
+        imagedata += chunk
+      });
+
+      response.on('end', function() {
+        fs.writeFile(user + '.png', imagedata, 'binary', function(err) {
+          if (err) throw err
+            fileCounter++;
+            console.log('File saved.', fileCounter);
+        });
+      });
+    }
+    https.get(options, callback);
+  };
+}();
+
+
+
 
 const rateLimitCheck = function(response) {
   if (response.headers.status === '403 Forbidden' && response.headers['x-ratelimit-remaining'] == 0) {
@@ -28,11 +65,10 @@ const pushUserInfo = function(resp) {
   });
 }
 
-var callback = function(response) {
+const callback = function(response) {
   var resp = '';
   //add a check for status 200
   if (rateLimitCheck(response) === false) return;
-  //console.log(response.headers);
   var i = 0;
   var newLink = response.headers.link;
 
@@ -49,7 +85,10 @@ var callback = function(response) {
     } else {
       pushUserInfo(resp);
       console.log(userInfo);
-      getImage.getWriteImage(userInfo);
+      userInfo.forEach((item) => {
+        console.log(getWriteImage);
+        getWriteImage(item.user, item.avatarUrl);
+      });
     }
   });
 }
