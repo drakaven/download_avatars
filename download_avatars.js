@@ -1,18 +1,17 @@
 //REQUIRED
-//process.argv
 //files extension
-//git branch merge test
 
 //OPTIONS
 //fix options declarations
 //find out how to only return required values from gituhb
 //error handling
 
-var request = require('request');
-var fs = require('fs');
-var path = 'https://api.github.com/repos/jquery/jquery/contributors?per_page=100';
-var folder = './avatars/';
-var options = {
+const request = require('request');
+const fs = require('fs');
+//var path = "https://api.github.com/repos/jquery/jquery/contributors?per_page=100";
+const path = `https://api.github.com/repos/${process.argv[2]}/${process.argv[3]}/contributors?per_page=100`;
+const folder = './avatars/';
+const options = {
   url: path,
   headers: {
     'User-Agent': 'drakaven'
@@ -20,7 +19,7 @@ var options = {
 };
 
 const rateLimitCheck = function(response) {
-  console.log(response.headers);
+  console.log(response.headers['x-ratelimit-remaining'], 'remaining requests');
   if (response.headers.status === '403 Forbidden' && response.headers['x-ratelimit-remaining'] == 0) {
     var timeDiff = new Date(response.headers['x-ratelimit-reset'] * 1000).getTime() - new Date().getTime();
     console.log("API Rate limit met, please try again in", Math.round(timeDiff / 1000 / 60) + 1, "minutes.");
