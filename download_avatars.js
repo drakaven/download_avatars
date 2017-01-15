@@ -1,7 +1,9 @@
-//add process argv
+// REQUIRED
+//create url spliter of getWrite image
 //needs to make the avatars directory
+// OPTIONAL
 //need to make sure the extension is correct
-//try to set request size to 100;
+//try to set request size to 100
 //add 200 status check
 
 var https = require('https');
@@ -10,7 +12,8 @@ var userInfo = [];
 
 var options = {
   host: 'api.github.com',
-  path: '/repos/drakaven/ejs/contributors',
+  path: `/repos/${process.argv[2]}/${process.argv[3]}/contributors`,
+  //path: '/repos/drakaven/ejs/contributors',
   headers: {
     'User-Agent': 'drakaven'
   }
@@ -37,7 +40,7 @@ const getWriteImage = function (){
         fs.writeFile(user + '.png', imagedata, 'binary', function(err) {
           if (err) throw err
             fileCounter++;
-            console.log('File saved.', fileCounter);
+            console.log('File saved.', user + '.png', fileCounter);
         });
       });
     }
@@ -86,7 +89,6 @@ const callback = function(response) {
       pushUserInfo(resp);
       console.log(userInfo);
       userInfo.forEach((item) => {
-        console.log(getWriteImage);
         getWriteImage(item.user, item.avatarUrl);
       });
     }
