@@ -1,12 +1,13 @@
 //add process argv
 var https = require('https');
+var getImage = require('./temp_images');
 var userInfo = [];
 
 var options = {
   host: 'api.github.com',
-  path: '/repos/jquery/jquery/contributors',
+  path: '/repos/drakaven/ejs/contributors',
   headers: {
-    'User-Agent': 'drakaven'
+    'User-Agent': 'drakven'
   }
 };
 
@@ -48,6 +49,7 @@ var callback = function(response) {
     } else {
       pushUserInfo(resp);
       console.log(userInfo);
+      getImage.getWriteImage(userInfo);
     }
   });
 }
