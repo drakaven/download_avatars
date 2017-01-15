@@ -2,6 +2,7 @@
 // Fix File Type
 // OPTIONAL
 //make it async
+//can this / should this be piped into the writer?
 //need to make sure the extension is correct
 //try to set request size to 100
 //add 200 status check
@@ -13,7 +14,8 @@ var userInfo = [];
 
 var options = {
   host: 'api.github.com',
-  path: `/repos/${process.argv[2]}/${process.argv[3]}/contributors`,
+  //path: `/repos/${process.argv[2]}/${process.argv[3]}/contributors`,
+  path: '/repos/drakaven/ejs/contributors',
   headers: {
     'User-Agent': 'drakaven'
   }
@@ -31,16 +33,14 @@ const getWriteImage = function() {
       path: url.match(/com.*/)[0].substring(3)
     }
     var callback = function(response) {
-      var imagedata = ''
-      //get file type from headers
-      console.log(response.headers);
+      var imagedata = '';
+
       response.setEncoding('binary');
       response.on('data', function(chunk) {
         imagedata += chunk
       });
 
       response.on('end', function() {
-        //console.log(fs.stat(imagedata));
         fs.writeFile('./avatars/' + user, imagedata, 'binary', function(err) {
           if (err) throw err
           fileCounter++;
@@ -56,8 +56,8 @@ const getWriteImage = function() {
 
 const rateLimitCheck = function(response) {
   if (response.headers.status === '403 Forbidden' && response.headers['x-ratelimit-remaining'] == 0) {
-    var timeDiff = new Date(response.headers['x-ratelimit-reset'] * 1000 + 60).getTime() - new Date().getTime();
-    console.log("API Rate limit met, please try again in", Math.round(timeDiff / 1000 / 60), "minutes.");
+    var timeDiff = new Date(response.headers['x-ratelimit-reset'] * 1000).getTime() - new Date().getTime();
+    console.log("API Rate limit met, please try again in", Math.round(timeDiff / 1000 / 60) + 1, "minutes.");
     return false;
   }
 }
@@ -74,6 +74,7 @@ const pushUserInfo = function(resp) {
 const callback = function(response) {
   var resp = '';
   //add a check for status 200
+  //console.log(response.headers);
   if (rateLimitCheck(response) === false) return;
   var i = 0;
   var newLink = response.headers.link;
