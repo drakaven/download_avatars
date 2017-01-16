@@ -27,10 +27,24 @@ const rateLimitCheck = function(response) {
   }
 }
 
+const getHead = function(login, url){
+  opt = options;
+  opt.url = url;
+  opt.method = 'head';
+  return request(opt, function(error, response){
+    console.log(response.headers);
+    login += '.' + response.headers['content-type'].match(/\/.*/)[0].slice(1);
+    console.log(login);
+    return login;
+  });
+}
+
+
 const getImage = function(url, login, folder) {
   opt = options;
   opt.url = url;
-  request(opt, function(error, response, body) {}).pipe(fs.createWriteStream(folder + login));
+  request(opt, function(error, response, body) {
+  }).pipe(fs.createWriteStream(folder + login));
 }
 
 const getPages = function() {
@@ -53,7 +67,7 @@ const getPages = function() {
         opt.url = response.headers.link.match(/http.*?>/)[0].slice(0, -1);
         getPages(opt);
       }
-      console.log(counter + " Files Downloaded");
+      console.log(counter + " File(s) Downloaded");
     });
   }
 }();
